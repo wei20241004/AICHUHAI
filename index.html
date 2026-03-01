@@ -1,0 +1,419 @@
+index.html 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copycraft — AI Copy Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --surface: #18181c;
+      --surface-hover: #1e1e24;
+      --border: #2a2a32;
+      --text: #e4e4e7;
+      --text-muted: #71717a;
+      --accent: #a78bfa;
+      --accent-dim: rgba(167, 139, 250, 0.15);
+      --success: #34d399;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .logo {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    #keywords {
+      width: 100%;
+      min-height: 52px;
+      padding: 14px 16px;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #keywords::placeholder {
+      color: var(--text-muted);
+    }
+
+    #keywords:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px 24px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(167, 139, 250, 0.35);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .result-card {
+      margin-top: 24px;
+    }
+
+    .result-card.empty .result-body {
+      display: none;
+    }
+
+    .result-card.empty .result-placeholder {
+      display: block;
+    }
+
+    .result-placeholder {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .result-placeholder svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .result-body {
+      padding: 0;
+    }
+
+    #output {
+      width: 100%;
+      min-height: 180px;
+      padding: 18px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      resize: vertical;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    #output:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .btn-copy {
+      flex: 1;
+      padding: 12px 20px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-copy:hover {
+      background: rgba(167, 139, 250, 0.25);
+      border-color: var(--accent);
+    }
+
+    .btn-copy.copied {
+      color: var(--success);
+      background: rgba(52, 211, 153, 0.15);
+      border-color: rgba(52, 211, 153, 0.4);
+    }
+
+    .btn-copy svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .btn.loading .btn-text { display: none; }
+    .btn.loading .spinner { display: block; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 48px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1 class="logo">Copycraft</h1>
+      <p class="tagline">Generate professional copy from your keywords — no signup, no backend.</p>
+    </header>
+
+    <section class="card">
+      <label for="keywords">Keywords or topic</label>
+      <textarea id="keywords" placeholder="e.g. productivity app, time tracking, remote team" rows="2"></textarea>
+      <p class="hint">Enter one or more keywords. The generator will create headline and body copy around them.</p>
+      <button type="button" class="btn" id="generateBtn">
+        <span class="spinner"></span>
+        <span class="btn-text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12a9 9 0 0 1 9-9 9 9 0 0 1 9 9"/></svg>
+          Generate copy
+        </span>
+      </button>
+    </section>
+
+    <section class="card result-card empty" id="resultCard">
+      <label>Generated copy</label>
+      <div class="result-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+        <p>Your generated copy will appear here.<br>Enter keywords above and click Generate.</p>
+      </div>
+      <div class="result-body">
+        <textarea id="output" readonly placeholder="Generated copy will appear here."></textarea>
+        <div class="result-actions">
+          <button type="button" class="btn-copy" id="copyBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy to clipboard
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Copycraft — client-side only. Your keywords never leave this page.
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var keywordsEl = document.getElementById('keywords');
+      var generateBtn = document.getElementById('generateBtn');
+      var resultCard = document.getElementById('resultCard');
+      var outputEl = document.getElementById('output');
+      var copyBtn = document.getElementById('copyBtn');
+
+      var templates = {
+        headlines: [
+          'Why {topic} Is the Key to {benefit}',
+          'The Ultimate Guide to {topic} in 2025',
+          'How {topic} Can Transform Your {audience}',
+          '{topic}: Everything You Need to Know',
+          'Discover the Power of {topic} for {benefit}',
+          'Get More Done with {topic} — Here\'s How',
+          'The Future of {topic} Starts Here',
+          '{topic} Made Simple: A Quick Start Guide'
+        ],
+        intros: [
+          'Whether you\'re new to {topic} or looking to level up, this guide covers what matters. We\'ll walk you through the essentials and show you how to get real results.',
+          '{topic} isn\'t just a trend — it\'s a game-changer for anyone who wants {benefit}. In this post, we break down why it works and how you can start today.',
+          'From basics to best practices, we\'ve got you covered. Here\'s everything you need to know about {topic} and how to make it work for you.',
+          'Ready to unlock the full potential of {topic}? You\'re in the right place. Below you\'ll find a clear, actionable overview that gets you from zero to confident.'
+        ],
+        closers: [
+          'Start with one small step today and build from there. {topic} can deliver real results when you keep it simple and consistent.',
+          'The best time to get started with {topic} was yesterday; the second best is now. Use the ideas above and adjust as you go.',
+          'You don\'t need to do everything at once. Pick one area of {topic} that matters most to you and focus there first.'
+        ],
+        benefits: ['productivity', 'growth', 'success', 'clarity', 'efficiency', 'results', 'impact', 'freedom'],
+        audiences: ['team', 'workflow', 'business', 'daily routine', 'goals', 'projects']
+      };
+
+      function pick(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      }
+
+      function generateCopy() {
+        var raw = (keywordsEl.value || '').trim();
+        if (!raw) {
+          outputEl.value = 'Please enter at least one keyword or topic above, then click Generate copy.';
+          resultCard.classList.remove('empty');
+          return;
+        }
+        var words = raw.split(/[\s,]+/).filter(Boolean).slice(0, 5);
+        var topic = words.map(capitalize).join(' ');
+        var benefit = pick(templates.benefits);
+        var audience = pick(templates.audiences);
+
+        var headline = pick(templates.headlines)
+          .replace(/\{topic\}/g, topic)
+          .replace(/\{benefit\}/g, benefit)
+          .replace(/\{audience\}/g, audience);
+
+        var intro = pick(templates.intros)
+          .replace(/\{topic\}/g, topic)
+          .replace(/\{benefit\}/g, benefit);
+
+        var closer = pick(templates.closers).replace(/\{topic\}/g, topic);
+
+        var body = headline + '\n\n' + intro + '\n\n' + closer;
+        outputEl.value = body;
+        resultCard.classList.remove('empty');
+      }
+
+      function setLoading(loading) {
+        generateBtn.classList.toggle('loading', loading);
+        generateBtn.disabled = loading;
+      }
+
+      generateBtn.addEventListener('click', function () {
+        setLoading(true);
+        setTimeout(function () {
+          generateCopy();
+          setLoading(false);
+        }, 600);
+      });
+
+      function copyToClipboard() {
+        var text = outputEl.value;
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function () {
+          var label = copyBtn.querySelector('svg').nextSibling;
+          if (label && label.nodeType === 3) label = copyBtn.appendChild(document.createTextNode(''));
+          copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(function () {
+            copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy to clipboard';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        });
+      }
+
+      copyBtn.addEventListener('click', copyToClipboard);
+    })();
+  </script>
+</body>
+</html>
